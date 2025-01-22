@@ -1,10 +1,11 @@
 import  { useEffect, } from 'react';
-import { useUser,SignedIn, SignInButton, SignUpButton, SignedOut, UserButton, } from '@clerk/clerk-react';
+import { useUser,SignedIn, SignInButton, SignUpButton, SignedOut, UserButton, UserProfile} from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 
 const Auth = () => {
   const navigate = useNavigate();
   const { isSignedIn } = useUser();
+
 
   useEffect(()=> {
   if(isSignedIn){

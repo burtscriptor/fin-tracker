@@ -1,0 +1,5 @@
+so i just started createing all the controllers and used the file structure that I know
+which is different from the structure Lun Dev was taking.
+I went a head and made all the CRUD controllers and routes.
+Not sure if he will do authUser
+so i think I need to start making the frontend functiionaliy like calling the api and saving records

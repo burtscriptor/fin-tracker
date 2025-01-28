@@ -6,10 +6,12 @@ const index = async (request: Request, response: Response)=> {
     try {
 
         const { userId } = request.params;
-        const records = await FinancialRecordModel.find({userId: userId});
+        const records = await FinancialRecordModel.find(
+            {userId: userId}
+        );
 
         if (records.length === 0) {
-            response.status(200).send({
+            response.status(404).send({
                 success: true,
                 records: [],
                 message: "No records matched the given UserId."
@@ -17,7 +19,7 @@ const index = async (request: Request, response: Response)=> {
             
         }
 
-        response.status(200).send({
+       return response.status(200).send({
             success: true, 
             records, 
             message: "Records retrived."
@@ -44,11 +46,11 @@ const remove = async (request: Request, response: Response) => {
         if(!removed){
             response.status(404).send({
                 success: false,
-                messaage: "Record not found for deletion."
+                message: "Record not found for deletion."
             });
         }
 
-        response.status(200).send({
+       return response.status(200).send({
             success: true,
             message: "Record successfully removed."
         });
@@ -72,6 +74,7 @@ const create = async (request: Request, response: Response)=> {
             userId: userId,
             description: description,
             amount: amount,
+            category: category,
             paymentMethod: paymentMethod,
             date: new Date()
         };
@@ -79,7 +82,7 @@ const create = async (request: Request, response: Response)=> {
         const result = new FinancialRecordModel(newRecord);
         await result.save();
 
-        response.status(200).send({
+       return response.status(200).send({
             success: true,
             message: "Record created and saved to database."
         });
@@ -125,7 +128,7 @@ const update = async (request: Request, response: Response)=> {
             
         }
 
-        response.status(200).send({
+       return response.status(200).send({
             success: true,
             message: "Record successfully updated.",
             updatedRecord: result

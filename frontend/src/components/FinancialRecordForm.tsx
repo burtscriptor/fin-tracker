@@ -20,7 +20,7 @@ const FinancialRecordForm = () => {
             amount: parseFloat(amount),
             category: category,
             paymentMethod: paymentMethod,
-        }
+        };
 
         // addRecord(newRecord);
        

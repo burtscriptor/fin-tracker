@@ -1,10 +1,13 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ES6",
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
+    "module": "CommonJs",
     "skipLibCheck": true,
+    "strict": true,
+    "esModuleInterop": true,
+
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -15,7 +18,7 @@
     "jsx": "react-jsx",
 
     /* Linting */
-    "strict": true,
+    
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true

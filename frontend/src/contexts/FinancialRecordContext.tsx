@@ -1,9 +1,10 @@
+import axios from "axios";
 import { createContext, useContext, useState } from "react";
 
 interface FinancialRecord {
     id?: string;
     userId: string;
-    date: Date;
+    date: Date; 
     description: string;
     amount: number;
     category: string;
@@ -13,8 +14,6 @@ interface FinancialRecord {
 interface FinancialRecordsContextType {
     records: FinancialRecord[];
     addRecord: (record: FinancialRecord) => void;
-    // updateRecord: (id: string, newRecord: FinancialRecord) => void;
-    // deleteRecord: (id: string) => void;
 }
 
 export const FinancialRecordsContext = createContext<
@@ -28,8 +27,24 @@ export const FinancialRecordsProvider = ({
 }) => {
     const [records, setRecords] = useState<FinancialRecord[]>([]);
 
-    const addRecord = (record: FinancialRecord) => {
-        return;
+    const addRecord = async (record: FinancialRecord) => {
+        try {
+            const response = await axios.post(
+                "http://localhost:3001/financial-records/create", // Fixed typo
+                record
+            );
+
+            console.log(response.data);
+
+            if (response.data.success) {                
+                const newRecord = response.data;
+                newRecord.date = new Date(newRecord.date);
+
+                setRecords((prev) => [...prev, newRecord]);
+            }
+        } catch (error) {
+            console.error("Error adding record:", error);
+        }
     };
 
     return (
@@ -37,4 +52,14 @@ export const FinancialRecordsProvider = ({
             {children}
         </FinancialRecordsContext.Provider>
     );
+};
+
+export const useFinancialRecords = () => { // Fixed typo
+    const context = useContext(FinancialRecordsContext);
+
+    if (!context) {
+        throw new Error("useFinancialRecords must be used within a FinancialRecordsProvider");
+    }
+
+    return context;
 };

@@ -1,158 +1,160 @@
 import FinancialRecordModel from "../schema/financial-record";
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, RequestHandler } from "express";
 
-
-const index = async (request: Request, response: Response, next: NextFunction): Promise<Response | void> => {
+const index: RequestHandler = async (request, response): Promise<void> => {
+  
     try {
+        const userId: string | undefined = request.params.userId;
 
-        const { userId } = request.params;
-        const records = await FinancialRecordModel.find(
-            {userId: userId}
-        );
-
-        if (records.length === 0) {
-            response.status(404).send({
-                success: true,
-                records: [],
-                message: "No records matched the given UserId."
-        });
-            
+        if (!userId) {
+            response.status(400).json({
+                success: false,
+                message: "User ID is required.",
+            });
+            return;
         }
 
-       return response.status(200).send({
-            success: true, 
-            records, 
-            message: "Records retrived."
+        const records = await FinancialRecordModel.find({ userId });
+
+        if (records.length === 0) {
+            response.status(404).json({
+                success: false,
+                records: [],
+                message: "No records matched the given User ID.",
+            });
+            return;
+        }
+
+        response.status(200).json({
+            success: true,
+            records: [records],
+            message: "Records retrieved successfully.",
         });
 
     } catch (error) {
-        console.log(error);
-        response.status(500).send({
-            success: false, 
-            message: "An error occurred while retriveing records."
+        console.error("Error retrieving records:", error);
+        response.status(500).json({
+            success: false,
+            message: "An error occurred while retrieving records.",
         });
-        
     }
 };
 
-const remove = async (request: Request, response: Response, next: NextFunction): Promise<Response | void> => {
-
+const remove: RequestHandler = async (request, response): Promise<void> => {
     try {
-
         const { recordId } = request.params;
 
         const removed = await FinancialRecordModel.findByIdAndDelete(recordId);
 
-        if(!removed){
-            response.status(404).send({
+        if (!removed) {
+            response.status(404).json({
                 success: false,
-                message: "Record not found for deletion."
+                message: "Record not found for deletion.",
             });
+            return;
         }
 
-       return response.status(200).send({
+        response.status(200).json({
             success: true,
-            message: "Record successfully removed."
+            message: "Record successfully removed.",
         });
-        
+
     } catch (error) {
-        console.log(error);
-        response.status(500).send({
+        console.error("Error deleting record:", error);
+        response.status(500).json({
             success: false,
-            message: "An error occured while deleting the record",
+            message: "An error occurred while deleting the record.",
         });
-        
     }
 };
 
-const create = async (request: Request, response: Response, next: NextFunction): Promise<Response | void> => {
-
+const create: RequestHandler = async (request, response): Promise<void> => {
+    console.log()
     try {
         const { userId, description, amount, category, paymentMethod } = request.body;
 
         const parsedAmount = Number(amount);
         if (isNaN(parsedAmount)) {
-            return response.status(400).json({ success: false, message: "Invalid amount" });
+            response.status(400).json({
+                success: false,
+                message: "Invalid amount.",
+            });
+            return;
         }
 
-        const newRecord = {
-            userId: userId,
-            description: description,
-            amount: amount,
-            category: category,
-            paymentMethod: paymentMethod,
-            date: new Date()
-        };
+        const newRecord = new FinancialRecordModel({
+            userId,
+            description,
+            amount: parsedAmount,
+            category,
+            paymentMethod,
+            date: new Date(),
+        });
 
-        const result = new FinancialRecordModel(newRecord);
-        await result.save();
+        await newRecord.save();
 
-       return response.status(200).send({
+        response.status(201).json({
             success: true,
-            message: "Record created and saved to database."
+            message: "Record created and saved to database.",
+            record: newRecord,
         });
 
-
-        
     } catch (error) {
-        console.log(error);
-        response.status(404).send({
+        console.error("Error creating record:", error);
+        response.status(500).json({
             success: false,
-            message: "An error occured and the record could not be created or saved."
+            message: "An error occurred, and the record could not be created or saved.",
         });
-        
     }
 };
 
-const update = async (request: Request, response: Response, next: NextFunction): Promise<Response | void> => {
-
+const update: RequestHandler = async (request, response): Promise<void> => {
     try {
+        const { recordId } = request.params;
+        const { description, category, amount, paymentMethod } = request.body;
         
-        const {userId, recordId, description, category, amount, paymentMethod  } = request.body
+        const parsedAmount = Number(amount);
+        if (isNaN(parsedAmount)) {
+            response.status(400).json({
+                success: false,
+                message: "Invalid amount.",
+            });
+            return;
+        }
 
-        const updateRecord ={
-            userId: userId,
-            description: description,
-            category: category,
-            amount: amount,
-            paymentMethod: paymentMethod,
-            date: new Date()
-        };
-
-        const result = await FinancialRecordModel.findByIdAndUpdate(
-            recordId, 
-            updateRecord,
+        const updatedRecord = await FinancialRecordModel.findByIdAndUpdate(
+            recordId,
+            {
+                description,
+                category,
+                amount: parsedAmount,
+                paymentMethod,
+                date: new Date(),
+            },
             { new: true }
         );
 
-        if (!result) {
-            return response.status(404).send({
+        if (!updatedRecord) {
+            response.status(404).json({
                 success: false,
-                message: "Record not found."
+                message: "Record not found.",
             });
-            
+            return;
         }
 
-       return response.status(200).send({
+        response.status(200).json({
             success: true,
             message: "Record successfully updated.",
-            updatedRecord: result
+            updatedRecord,
         });
 
-        
     } catch (error) {
-        console.log(error);
-        response.json(500).send({
+        console.error("Error updating record:", error);
+        response.status(500).json({
             success: false,
-            message: "An error occured while updating the record."
+            message: "An error occurred while updating the record.",
         });
-        
     }
+};
 
-};
-export {
-    index,
-    create,
-    remove,
-    update
-};
+export { index, create, remove, update };

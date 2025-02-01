@@ -1,6 +1,7 @@
 import  { useEffect, } from 'react';
 import { useUser,SignedIn, SignInButton, SignUpButton, SignedOut, UserButton, UserProfile} from '@clerk/clerk-react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
+import image1 from "../assets/penny-counter.jpg";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -14,16 +15,22 @@ const Auth = () => {
 
 }, [isSignedIn, navigate]);
   return (
+    <>
     <div className="sign-in-container" >
       <SignedOut>
         <SignUpButton mode="modal"/>
         <SignInButton mode="modal" />
+        
       </SignedOut>
-
+      
       <SignedIn>
-        <UserButton/>
+       <Navigate to="/" />
       </SignedIn>
     </div>
+    <div className="image">
+    <img src={image1} alt="Electronic Penny Counter" />
+    </div>
+    </>
   )
 }
 
